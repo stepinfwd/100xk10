@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Notes</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        font-family:
+          system-ui,
+          -apple-system,
+          sans-serif;
+        max-width: 540px;
+        margin: 40px auto;
+        padding: 0 16px;
+        color: #1a1a1a;
+        background: #fafafa;
+      }
+      h1 {
+        font-size: 1.6rem;
+        margin-bottom: 20px;
+      }
+      .add-note {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 24px;
+      }
+      #note-input {
+        flex: 1;
+        padding: 10px 12px;
+        font-size: 1rem;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+      }
+      #note-input:focus {
+        outline: none;
+        border-color: #4f46e5;
+      }
+      button {
+        padding: 10px 16px;
+        font-size: 1rem;
+        color: #fff;
+        background: #4f46e5;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+      }
+      button:hover {
+        background: #4338ca;
+      }
+      #notes-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      #notes-list li {
+        background: #fff;
+        padding: 14px 16px;
+        border: 1px solid #eee;
+        border-radius: 8px;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+        word-break: break-word;
+      }
+      .empty {
+        color: #999;
+        font-style: italic;
+      }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  </head>
+  <body>
+    <h1>📝 My Notes</h1>
+
+    <form class="add-note" id="note-form">
+      <input
+        type="text"
+        id="note-input"
+        placeholder="Write a note..."
+        autocomplete="off"
+      />
+      <button type="submit">Add</button>
+    </form>
+
+    <ul id="notes-list">
+      <li class="empty">No notes yet. Add one above!</li>
+    </ul>
+
+    <script>
+      const form = document.getElementById("note-form");
+      const input = document.getElementById("note-input");
+      const list = document.getElementById("notes-list");
+
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const text = input.value.trim();
+        if (!text) return;
+
+        // Remove the "empty" placeholder on first add
+        const placeholder = list.querySelector(".empty");
+        if (placeholder) placeholder.remove();
+
+        const li = document.createElement("li");
+        li.textContent = text;
+        list.appendChild(li);
+
+        input.value = "";
+        input.focus();
+        postTodo(text);
+      });
+
+      async function postTodo(note) {
+        console.log("note==", note);
+        const response = await axios.post("http://localhost:5188/notes", {
+          note: note,
+        });
+        console.log("res---", response);
+      }
+
+      async function getTodo() {
+        const response = await axios.get("http://localhost:5188/notes");
+        console.log("response----", response);
+        const form = document.getElementById("note-form");
+        const input = document.getElementById("note-input");
+        const list = document.getElementById("notes-list");
+
+
+        console.log("get todo", response.data);
+        for (let i = 0; i < response.data.length; i++) {
+          const li = document.createElement("li");
+          li.textContent = response.data[i].note;
+          list.appendChild(li);
+        }
+
+        console.log("get todo", response);
+      }
+
+      getTodo();
+    </script>
+  </body>
+</html>
